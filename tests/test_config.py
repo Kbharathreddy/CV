@@ -31,3 +31,12 @@ def test_validation_rejects_non_positive_frame_interval() -> None:
 
     with pytest.raises(ConfigError, match="frame_interval"):
         validate_config(invalid)
+
+
+def test_validation_rejects_multiple_video_sampling_strategies() -> None:
+    config = load_config("config.example.yaml")
+    invalid = copy.deepcopy(config)
+    invalid["video"]["target_frames"] = 10
+
+    with pytest.raises(ConfigError, match="Exactly one"):
+        validate_config(invalid)

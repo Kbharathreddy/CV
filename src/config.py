@@ -22,16 +22,29 @@ class ConfigError(ValueError):
 REQUIRED_KEYS: dict[str, set[str]] = {
     "paths": {"data_root", "output_root", "colmap_executable", "gaussian_splatting_path"},
     "dataset": {"name", "scene"},
-    "video": {"frame_interval", "target_frames"},
+    "video": {"frame_interval", "time_interval", "target_frames"},
     "quality": {
         "blur_threshold",
         "min_brightness",
         "max_brightness",
-        "dark_pixel_threshold",
-        "bright_pixel_threshold",
+        "dark_intensity_cutoff",
+        "bright_intensity_cutoff",
+        "max_dark_pixel_ratio",
+        "max_bright_pixel_ratio",
+        "minimum_feature_count",
     },
-    "frame_selection": {"method", "redundancy_threshold", "minimum_matches"},
-    "preprocessing": {"max_width", "max_height"},
+    "frame_selection": {
+        "method",
+        "feature_detector",
+        "maximum_features",
+        "redundancy_threshold",
+        "minimum_matches",
+        "lowe_ratio",
+        "use_geometric_check",
+        "ransac_reprojection_threshold",
+        "max_redundant_motion",
+    },
+    "preprocessing": {"max_width", "max_height", "jpeg_quality"},
     "colmap": {"matcher", "camera_model"},
     "gaussian": {"iterations", "lambda_ssim", "device", "checkpoint_interval"},
     "evaluation": {"psnr", "ssim", "lpips"},
@@ -147,14 +160,55 @@ def validate_config(config: dict[str, Any]) -> dict[str, Any]:
         joined = ", ".join(missing)
         raise ConfigError(f"Missing required configuration keys: {joined}")
 
-    if int(config["video"]["frame_interval"]) <= 0:
+    strategies = [
+        config["video"].get("frame_interval"),
+        config["video"].get("time_interval"),
+        config["video"].get("target_frames"),
+    ]
+    enabled_strategies = [value for value in strategies if value is not None]
+    if len(enabled_strategies) != 1:
+        raise ConfigError(
+            "Exactly one video extraction strategy must be set: "
+            "video.frame_interval, video.time_interval, or video.target_frames."
+        )
+    if config["video"].get("frame_interval") is not None and int(config["video"]["frame_interval"]) <= 0:
         raise ConfigError("video.frame_interval must be positive.")
-    if int(config["video"]["target_frames"]) <= 0:
+    if config["video"].get("time_interval") is not None and float(config["video"]["time_interval"]) <= 0:
+        raise ConfigError("video.time_interval must be positive.")
+    if config["video"].get("target_frames") is not None and int(config["video"]["target_frames"]) <= 0:
         raise ConfigError("video.target_frames must be positive.")
+    if float(config["quality"]["blur_threshold"]) < 0:
+        raise ConfigError("quality.blur_threshold must be non-negative.")
+    if not 0 <= int(config["quality"]["dark_intensity_cutoff"]) <= 255:
+        raise ConfigError("quality.dark_intensity_cutoff must be between 0 and 255.")
+    if not 0 <= int(config["quality"]["bright_intensity_cutoff"]) <= 255:
+        raise ConfigError("quality.bright_intensity_cutoff must be between 0 and 255.")
+    if not 0 <= float(config["quality"]["max_dark_pixel_ratio"]) <= 1:
+        raise ConfigError("quality.max_dark_pixel_ratio must be between 0 and 1.")
+    if not 0 <= float(config["quality"]["max_bright_pixel_ratio"]) <= 1:
+        raise ConfigError("quality.max_bright_pixel_ratio must be between 0 and 1.")
+    if int(config["quality"]["minimum_feature_count"]) < 0:
+        raise ConfigError("quality.minimum_feature_count must be non-negative.")
+    if str(config["frame_selection"]["feature_detector"]).lower() not in {"orb", "sift"}:
+        raise ConfigError("frame_selection.feature_detector must be 'orb' or 'sift'.")
+    if int(config["frame_selection"]["maximum_features"]) <= 0:
+        raise ConfigError("frame_selection.maximum_features must be positive.")
+    if not 0 <= float(config["frame_selection"]["redundancy_threshold"]) <= 1:
+        raise ConfigError("frame_selection.redundancy_threshold must be between 0 and 1.")
+    if int(config["frame_selection"]["minimum_matches"]) < 0:
+        raise ConfigError("frame_selection.minimum_matches must be non-negative.")
+    if not 0 < float(config["frame_selection"]["lowe_ratio"]) < 1:
+        raise ConfigError("frame_selection.lowe_ratio must be between 0 and 1.")
+    if float(config["frame_selection"]["ransac_reprojection_threshold"]) <= 0:
+        raise ConfigError("frame_selection.ransac_reprojection_threshold must be positive.")
+    if not 0 <= float(config["frame_selection"]["max_redundant_motion"]) <= 1:
+        raise ConfigError("frame_selection.max_redundant_motion must be between 0 and 1.")
     if int(config["preprocessing"]["max_width"]) <= 0:
         raise ConfigError("preprocessing.max_width must be positive.")
     if int(config["preprocessing"]["max_height"]) <= 0:
         raise ConfigError("preprocessing.max_height must be positive.")
+    if not 1 <= int(config["preprocessing"]["jpeg_quality"]) <= 100:
+        raise ConfigError("preprocessing.jpeg_quality must be between 1 and 100.")
     if int(config["gaussian"]["iterations"]) <= 0:
         raise ConfigError("gaussian.iterations must be positive.")
     if int(config["gaussian"]["checkpoint_interval"]) <= 0:

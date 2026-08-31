@@ -124,6 +124,42 @@ The official Mip-NeRF 360 project page provides Google Storage archives. The cur
 - Avoid moving people, reflective surfaces, and transparent objects for early tests.
 - Start with a 30-60 second video before scaling up.
 
+## Smartphone Video Preprocessing
+
+Phase 2 implements smartphone-video preparation without invoking COLMAP or Gaussian Splatting. The pipeline validates the video, extracts candidate frames, scores each frame for blur and exposure, removes near-duplicate frames with feature matching, preprocesses selected RGB images, and writes `frame_selection.csv` plus `summary.json`.
+
+Frame extraction supports exactly one strategy at a time:
+
+```bash
+python src/extract_frames.py --input data/smartphone/scene01.mp4 --output outputs/test/frames --frame-interval 10
+python src/extract_frames.py --input data/smartphone/scene01.mp4 --output outputs/test/frames --time-interval 0.5
+python src/extract_frames.py --input data/smartphone/scene01.mp4 --output outputs/test/frames --target-frames 100
+```
+
+The automatic selector uses configurable blur, brightness, dark-pixel, and bright-pixel thresholds. Redundancy removal uses ORB features by default, descriptor matching, an optional lightweight geometric check, and a small normalized-motion threshold. These defaults are initial experiment parameters, not experimentally proven optimum values.
+
+Run the Phase 2 smartphone preprocessing pipeline:
+
+```bash
+python src/pipeline.py \
+  --mode video \
+  --input data/smartphone/scene01.mp4 \
+  --experiment-name smartphone_scene01 \
+  --stop-after preprocessing
+```
+
+Outputs are written under:
+
+```text
+outputs/<experiment_name>/
+|-- frame_selection.csv
+|-- summary.json
+|-- logs/
+`-- frames/
+    |-- candidates/
+    `-- selected/
+```
+
 ## Planned Commands
 
 Dataset mode:

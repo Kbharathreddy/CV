@@ -10,23 +10,35 @@ dataset:
 
 video:
   frame_interval: 10
-  target_frames: 100
+  time_interval: null
+  target_frames: null
 
 quality:
+  # Initial configurable defaults, not experimentally proven optima.
   blur_threshold: 100.0
   min_brightness: 30.0
   max_brightness: 225.0
-  dark_pixel_threshold: 0.4
-  bright_pixel_threshold: 0.4
+  dark_intensity_cutoff: 30
+  bright_intensity_cutoff: 225
+  max_dark_pixel_ratio: 0.45
+  max_bright_pixel_ratio: 0.45
+  minimum_feature_count: 40
 
 frame_selection:
-  method: quality
+  method: automatic
+  feature_detector: orb
+  maximum_features: 3000
   redundancy_threshold: 0.85
-  minimum_matches: 80
+  minimum_matches: 50
+  lowe_ratio: 0.75
+  use_geometric_check: true
+  ransac_reprojection_threshold: 3.0
+  max_redundant_motion: 0.015
 
 preprocessing:
   max_width: 1600
   max_height: 1200
+  jpeg_quality: 95
 
 colmap:
   matcher: sequential
