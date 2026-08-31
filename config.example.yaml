@@ -1,0 +1,47 @@
+paths:
+  data_root: data
+  output_root: outputs
+  colmap_executable: colmap
+  gaussian_splatting_path: null
+
+dataset:
+  name: mipnerf360
+  scene: bonsai
+
+video:
+  frame_interval: 10
+  target_frames: 100
+
+quality:
+  blur_threshold: 100.0
+  min_brightness: 30.0
+  max_brightness: 225.0
+  dark_pixel_threshold: 0.4
+  bright_pixel_threshold: 0.4
+
+frame_selection:
+  method: quality
+  redundancy_threshold: 0.85
+  minimum_matches: 80
+
+preprocessing:
+  max_width: 1600
+  max_height: 1200
+
+colmap:
+  matcher: sequential
+  camera_model: OPENCV
+
+gaussian:
+  iterations: 30000
+  lambda_ssim: 0.2
+  device: cuda
+  checkpoint_interval: 7000
+
+evaluation:
+  psnr: true
+  ssim: true
+  lpips: true
+
+reproducibility:
+  random_seed: 42

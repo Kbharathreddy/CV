@@ -1,0 +1,25 @@
+[project]
+name = "smartphone-3d-gaussian-splatting"
+version = "0.1.0"
+description = "End-to-end smartphone video and public dataset pipeline for 3D scene reconstruction with 3D Gaussian Splatting."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Project Author" }
+]
+keywords = [
+  "computer-vision",
+  "3d-reconstruction",
+  "structure-from-motion",
+  "colmap",
+  "gaussian-splatting"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+
+[tool.setuptools]
+packages = ["src"]

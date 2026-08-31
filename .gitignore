@@ -1,0 +1,91 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Virtual environments and local dependency caches
+.venv/
+venv/
+env/
+.env/
+.deps/
+
+# Local configuration and secrets
+config.yaml
+.env*
+!.env.example
+*.secret
+secrets.*
+
+# Logs and temporary files
+*.log
+logs/
+tmp/
+temp/
+*.tmp
+*.part
+
+# Datasets and generated data
+data/public/mipnerf360/*
+!data/public/mipnerf360/.gitkeep
+data/public/tanks_and_temples/*
+!data/public/tanks_and_temples/.gitkeep
+data/smartphone/*
+!data/smartphone/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/**/*.mp4
+data/**/*.mov
+data/**/*.avi
+data/**/*.mkv
+data/**/*.jpg
+data/**/*.jpeg
+data/**/*.png
+data/**/*.tif
+data/**/*.tiff
+
+# Experiment outputs
+outputs/*
+!outputs/.gitkeep
+*.db
+database.db
+sparse/
+dense/
+*.ply
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.mp4
+*.mov
+
+# CUDA / native build artifacts
+*.cu.o
+*.cubin
+*.fatbin
+*.ptx
+*.so
+*.pyd
+*.dll
+*.dylib
+*.o
+*.obj
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini

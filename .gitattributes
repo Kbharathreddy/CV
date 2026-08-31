@@ -1,0 +1,27 @@
+* text=auto eol=lf
+
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.tif binary
+*.tiff binary
+*.mp4 binary
+*.mov binary
+*.db binary
+*.ply binary
+*.pt binary
+*.pth binary
+*.ckpt binary
+
+# Git LFS is optional. If large artifacts must be versioned later, enable it
+# explicitly with commands such as:
+#   git lfs track "*.pt"
+#   git lfs track "*.pth"
+#   git lfs track "*.ckpt"
+#   git lfs track "*.ply"
+#   git lfs track "*.mp4"
+#   git lfs track "*.mov"
