@@ -55,13 +55,19 @@ data/**/*.tiff
 # Experiment outputs
 outputs/*
 !outputs/.gitkeep
+outputs/phase5/
 gaussian-splatting/
 external/gaussian-splatting/
 third_party/gaussian-splatting/
+phase5_*.zip
 *.db
 database.db
 sparse/
 dense/
+renders/
+checkpoints/
+point_cloud/
+metrics/
 *.ply
 *.pt
 *.pth

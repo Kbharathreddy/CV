@@ -239,6 +239,41 @@ def validate_config(config: dict[str, Any]) -> dict[str, Any]:
             raise ConfigError("gaussian.smoke_test.images_subdir must be set.")
         if not smoke_test.get("output_subdir"):
             raise ConfigError("gaussian.smoke_test.output_subdir must be set.")
+    phase5 = config.get("phase5")
+    if phase5 is not None:
+        if not isinstance(phase5, dict):
+            raise ConfigError("phase5 must be a mapping.")
+        if int(phase5.get("iterations", config["gaussian"]["iterations"])) <= 0:
+            raise ConfigError("phase5.iterations must be positive.")
+        split = phase5.get("split", {})
+        if not isinstance(split, dict):
+            raise ConfigError("phase5.split must be a mapping.")
+        holdout_interval = int(split.get("holdout_interval", 8))
+        holdout_offset = int(split.get("holdout_offset", 0))
+        if holdout_interval <= 1:
+            raise ConfigError("phase5.split.holdout_interval must be greater than 1.")
+        if not 0 <= holdout_offset < holdout_interval:
+            raise ConfigError("phase5.split.holdout_offset must be in [0, holdout_interval).")
+        experiments = phase5.get("experiments", {})
+        if not isinstance(experiments, dict):
+            raise ConfigError("phase5.experiments must be a mapping.")
+        fixed_budgets = experiments.get("fixed_budgets", [30, 60, 100])
+        if not isinstance(fixed_budgets, list) or not fixed_budgets:
+            raise ConfigError("phase5.experiments.fixed_budgets must be a non-empty list.")
+        if any(int(value) <= 0 for value in fixed_budgets):
+            raise ConfigError("phase5.experiments.fixed_budgets values must be positive.")
+        if int(experiments.get("automatic_budget", 60)) <= 0:
+            raise ConfigError("phase5.experiments.automatic_budget must be positive.")
+        scene_preparation = phase5.get("scene_preparation", {})
+        if not isinstance(scene_preparation, dict):
+            raise ConfigError("phase5.scene_preparation must be a mapping.")
+        if str(scene_preparation.get("link_mode", "hardlink")).lower() not in {"hardlink", "symlink", "copy"}:
+            raise ConfigError("phase5.scene_preparation.link_mode must be one of: hardlink, symlink, copy.")
+        evaluation = phase5.get("evaluation", {})
+        if not isinstance(evaluation, dict):
+            raise ConfigError("phase5.evaluation must be a mapping.")
+        if not evaluation.get("lpips_network", "alex"):
+            raise ConfigError("phase5.evaluation.lpips_network must be set.")
     if str(config["colmap"]["backend"]).lower() not in {"auto", "pycolmap", "cli"}:
         raise ConfigError("colmap.backend must be one of: auto, pycolmap, cli.")
     valid_matchers = {"auto", "exhaustive", "sequential"}

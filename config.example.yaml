@@ -65,6 +65,25 @@ gaussian:
     images_subdir: images
     output_subdir: outputs/kaggle/bonsai_smoke
 
+phase5:
+  # Experiment parameters, not final reported results.
+  iterations: 30000
+  split:
+    holdout_interval: 8
+    holdout_offset: 0
+  experiments:
+    fixed_budgets: [30, 60, 100]
+    automatic_budget: 60
+    include_full: false
+  scene_preparation:
+    link_mode: hardlink
+    train_scene_subdir: train_scene
+    test_scene_subdir: test_scene
+  evaluation:
+    enabled: true
+    lpips_network: alex
+    render_heldout_only: true
+
 evaluation:
   psnr: true
   ssim: true

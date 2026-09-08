@@ -1,0 +1,19 @@
+{
+  "dataset": "mipnerf360",
+  "experiments": [
+    "automatic_60",
+    "fixed_100",
+    "fixed_30",
+    "fixed_60",
+    "full"
+  ],
+  "generated_at_utc": "2026-09-08T18:52:19+00:00",
+  "graphdeco_commit": "54c035f7834b564019656c3e3fcc3646292f727d",
+  "graphdeco_repository": "https://github.com/graphdeco-inria/gaussian-splatting.git",
+  "manifest_version": 1,
+  "notes": "Generated locally for Phase 5 preparation. No training has been run.",
+  "scene": "bonsai",
+  "source_images": "data/public/mipnerf360/bonsai/images_4",
+  "source_model": "outputs/mipnerf_bonsai_colmap/sparse/0",
+  "split_manifest": "split_manifest.json"
+}

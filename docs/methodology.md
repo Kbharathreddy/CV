@@ -164,8 +164,23 @@ Smoke-test success means CUDA is available, the COLMAP model and images load, Ga
 
 The verified Kaggle run used a Tesla T4 with PyTorch `2.10.0+cu128`, ran 300 iterations, changed the main training loss from about `0.2694682` to `0.1096482`, wrote `chkpnt300.pth`, saved a `100,730`-Gaussian point cloud, and rendered 292 training views. The loss parser intentionally ignores `Depth Loss=0.0000000` so the reported final loss reflects the main training loss. These results are a smoke-test validation only, not final reconstruction quality evidence.
 
-## Phase 5: Full Experiments and Evaluation
+## Phase 5: Full Experiments and Evaluation Preparation
 
-Phase 5 is next. It should compare 30-frame, 60-frame, 100-frame, automatic frame-selection, and optional full 292-frame reconstructions. Evaluation should include PSNR, SSIM, LPIPS, training/runtime cost, number of Gaussians, registration or reconstruction success, and frame-selection efficiency.
+Phase 5 preparation defines the scientific experiment design before running expensive GPU jobs. It compares `fixed_30`, `fixed_60`, `fixed_100`, `automatic_60`, and an optional `full` baseline. No Phase 5 training or evaluation metrics have been run yet.
 
-Evaluation metrics must be computed on held-out evaluation views. Training-view renders can be useful for sanity checks, but they are not sufficient evidence of generalization or final reconstruction quality.
+All Phase 5 experiments use the same explicit held-out test views. The split is generated from the ordered COLMAP image list in the Phase 3 sparse model. The default policy holds out every 8th registered image starting at offset 0, which produces 37 held-out test views from the 292-image bonsai scene. The remaining 255 images are training candidates.
+
+Fixed-budget selectors uniformly sample the ordered training candidates instead of taking the first N images. This gives the 30, 60, and 100-frame baselines coverage across the camera trajectory.
+
+The automatic selector is implemented as a first-class reusable component in `src/frame_selection.py`. It uses image-quality signals from the Phase 2 quality logic, feature counts, and Phase 3 camera-pose coverage. It filters clearly poor candidates when enough good candidates remain, anchors the first and last usable views, and greedily adds views that improve pose diversity while retaining quality and feature-richness. The prepared `automatic_60` manifest records computed quality and pose-signal counts.
+
+Phase 5 scene preparation reuses the existing Phase 3 COLMAP model without rerunning feature extraction, matching, or mapping. `src/phase5_experiments.py` reads the COLMAP cameras, image poses, sparse points, 2D observations, and tracks, filters them to the manifest image lists, and writes train/test COLMAP scene folders:
+
+```text
+outputs/phase5/<experiment>/train_scene/
+outputs/phase5/<experiment>/test_scene/
+```
+
+The train scene contains only training views. The test scene contains only held-out views. The Kaggle notebook trains Graphdeco 3DGS on `train_scene` and then renders `test_scene` from the trained checkpoint. This avoids relying on Graphdeco's implicit COLMAP evaluation split, because implicit splitting would change when the image subset changes.
+
+Evaluation metrics must be computed on held-out views. `scripts/evaluate_phase5.py` prepares PSNR, SSIM, and optional LPIPS evaluation against the manifest's `test_images`, and `scripts/compare_phase5_results.py` aggregates completed experiment summaries into CSV. Training-view renders can be useful for sanity checks, but they are not sufficient evidence of generalization or final reconstruction quality.

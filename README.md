@@ -10,7 +10,7 @@ Professional, reproducible Computer Vision pipeline for reconstructing a realist
 | Phase 2 - Smartphone video preprocessing | Complete | Frame extraction, quality filtering, redundancy filtering, preprocessing, CSV, and summary output. |
 | Phase 3 - COLMAP/SfM reconstruction | Complete | Mip-NeRF 360 `bonsai` `images_4` registered `292/292` images with PyCOLMAP. |
 | Phase 4 - Kaggle 3DGS GPU smoke test | Complete | Official GraphDeco 3DGS ran `300` iterations on Kaggle Tesla T4 and rendered `292` training views. |
-| Phase 5 - Full reconstruction experiments and evaluation | Next | Compare 30/60/100/automatic frame selections with held-out evaluation views. |
+| Phase 5 - Full reconstruction experiments and evaluation | Preparation | Local manifests, split enforcement, scene-prep tooling, metrics, and Kaggle runner are prepared; GPU experiments are not run yet. |
 
 ## Motivation
 
@@ -166,6 +166,43 @@ Do not use this step for full 30,000-iteration training, evaluation metrics, sma
 
 Verified smoke-test result: Kaggle Tesla T4, PyTorch `2.10.0+cu128`, CUDA `12.8`, `300` iterations, loss changed from about `0.2694682` to `0.1096482`, `100,730` Gaussians, `292` renders, status `SUCCESS`. This is an integration smoke test only, not a final-quality reconstruction. See `docs/phase4_results.md`.
 
+## Phase 5 Experiment Preparation
+
+Phase 5 studies how frame-selection strategy affects 3D Gaussian Splatting quality and cost on Mip-NeRF 360 `bonsai`. The prepared experiments are:
+
+- `fixed_30`
+- `fixed_60`
+- `fixed_100`
+- `automatic_60`
+- `full` optional baseline using all non-held-out training candidates
+
+All experiments share the same explicit held-out test views. The committed split manifest is `experiments/phase5/split_manifest.json`: from 292 ordered COLMAP images, every 8th image starting at offset 0 is held out, producing 37 test images and 255 training candidates. The 30/60/100 counts refer only to training images.
+
+Generate or refresh the small manifests:
+
+```bash
+python scripts/prepare_phase5_experiment.py \
+  --generate-manifests \
+  --include-full \
+  --manifest-dir experiments/phase5 \
+  --source-images data/public/mipnerf360/bonsai/images_4 \
+  --source-model outputs/mipnerf_bonsai_colmap/sparse/0
+```
+
+Prepare one experiment scene later without rerunning COLMAP:
+
+```bash
+python scripts/prepare_phase5_experiment.py \
+  --experiment fixed_30 \
+  --manifest-dir experiments/phase5 \
+  --source-images data/public/mipnerf360/bonsai/images_4 \
+  --source-model outputs/mipnerf_bonsai_colmap/sparse/0 \
+  --output outputs/phase5/fixed_30 \
+  --link-mode hardlink
+```
+
+For Kaggle GPU execution, use `notebooks/phase5_kaggle.ipynb` and change only `EXPERIMENT_NAME` for each run. The notebook trains from a train-only scene and renders a separate held-out scene, so held-out images are not used for training. No Phase 5 PSNR, SSIM, or LPIPS values have been obtained yet.
+
 ## Smartphone Video Capture Guidelines
 
 - Capture a static scene while moving the camera slowly.
@@ -237,16 +274,17 @@ Unavailable metrics will be stored as `null` in later experiment summaries rathe
 
 ## Experiments
 
-The target comparison is:
+The Phase 5 target comparison is:
 
-- 30-frame baseline
-- 60-frame baseline
-- 100-frame baseline
-- automatic quality-based frame selection
+- `fixed_30`
+- `fixed_60`
+- `fixed_100`
+- `automatic_60`
+- optional `full`
 
 Results will be added after completion of the corresponding experiment.
 
-Phase 5 evaluation should use held-out evaluation views rather than reporting metrics only on training views.
+Phase 5 evaluation must use the shared held-out evaluation views rather than reporting metrics only on training views.
 
 ## Third-Party Acknowledgements
 

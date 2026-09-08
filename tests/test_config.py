@@ -76,3 +76,21 @@ def test_gaussian_implementation_configuration_validates() -> None:
 
     with pytest.raises(ConfigError, match="gaussian.implementation.commit"):
         validate_config(invalid)
+
+
+def test_phase5_split_configuration_validates() -> None:
+    config = load_config("config.example.yaml")
+    invalid = copy.deepcopy(config)
+    invalid["phase5"]["split"]["holdout_interval"] = 1
+
+    with pytest.raises(ConfigError, match="phase5.split.holdout_interval"):
+        validate_config(invalid)
+
+
+def test_phase5_budget_configuration_validates() -> None:
+    config = load_config("config.example.yaml")
+    invalid = copy.deepcopy(config)
+    invalid["phase5"]["experiments"]["fixed_budgets"] = [30, 0]
+
+    with pytest.raises(ConfigError, match="phase5.experiments.fixed_budgets"):
+        validate_config(invalid)
