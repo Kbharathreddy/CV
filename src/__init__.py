@@ -6,6 +6,7 @@ __all__ = [
     "download_dataset",
     "extract_frames",
     "frame_quality",
+    "gaussian_splatting",
     "pipeline",
     "preprocess",
     "run_colmap",

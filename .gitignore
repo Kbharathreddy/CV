@@ -55,6 +55,9 @@ data/**/*.tiff
 # Experiment outputs
 outputs/*
 !outputs/.gitkeep
+gaussian-splatting/
+external/gaussian-splatting/
+third_party/gaussian-splatting/
 *.db
 database.db
 sparse/
@@ -82,6 +85,7 @@ dense/
 # IDEs and editors
 .vscode/
 .idea/
+.ipynb_checkpoints/
 *.swp
 *.swo
 

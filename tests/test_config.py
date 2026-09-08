@@ -58,3 +58,21 @@ def test_colmap_backend_configuration_validates() -> None:
 
     with pytest.raises(ConfigError, match="colmap.backend"):
         validate_config(invalid)
+
+
+def test_gaussian_smoke_test_configuration_validates() -> None:
+    config = load_config("config.example.yaml")
+    invalid = copy.deepcopy(config)
+    invalid["gaussian"]["smoke_test"]["iterations"] = 0
+
+    with pytest.raises(ConfigError, match="gaussian.smoke_test.iterations"):
+        validate_config(invalid)
+
+
+def test_gaussian_implementation_configuration_validates() -> None:
+    config = load_config("config.example.yaml")
+    invalid = copy.deepcopy(config)
+    invalid["gaussian"]["implementation"]["commit"] = ""
+
+    with pytest.raises(ConfigError, match="gaussian.implementation.commit"):
+        validate_config(invalid)

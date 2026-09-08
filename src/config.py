@@ -222,6 +222,23 @@ def validate_config(config: dict[str, Any]) -> dict[str, Any]:
         raise ConfigError("gaussian.iterations must be positive.")
     if int(config["gaussian"]["checkpoint_interval"]) <= 0:
         raise ConfigError("gaussian.checkpoint_interval must be positive.")
+    implementation = config["gaussian"].get("implementation")
+    if implementation is not None:
+        if not isinstance(implementation, dict):
+            raise ConfigError("gaussian.implementation must be a mapping.")
+        for key in ("name", "repository_url", "commit", "license"):
+            if not implementation.get(key):
+                raise ConfigError(f"gaussian.implementation.{key} must be set.")
+    smoke_test = config["gaussian"].get("smoke_test")
+    if smoke_test is not None:
+        if not isinstance(smoke_test, dict):
+            raise ConfigError("gaussian.smoke_test must be a mapping.")
+        if int(smoke_test.get("iterations", 0)) <= 0:
+            raise ConfigError("gaussian.smoke_test.iterations must be positive.")
+        if not smoke_test.get("images_subdir"):
+            raise ConfigError("gaussian.smoke_test.images_subdir must be set.")
+        if not smoke_test.get("output_subdir"):
+            raise ConfigError("gaussian.smoke_test.output_subdir must be set.")
     if str(config["colmap"]["backend"]).lower() not in {"auto", "pycolmap", "cli"}:
         raise ConfigError("colmap.backend must be one of: auto, pycolmap, cli.")
     valid_matchers = {"auto", "exhaustive", "sequential"}

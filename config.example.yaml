@@ -55,6 +55,15 @@ gaussian:
   lambda_ssim: 0.2
   device: cuda
   checkpoint_interval: 7000
+  implementation:
+    name: graphdeco-inria/gaussian-splatting
+    repository_url: https://github.com/graphdeco-inria/gaussian-splatting.git
+    commit: 54c035f7834b564019656c3e3fcc3646292f727d
+    license: Non-commercial research/evaluation license from Inria and MPII
+  smoke_test:
+    iterations: 300
+    images_subdir: images
+    output_subdir: outputs/kaggle/bonsai_smoke
 
 evaluation:
   psnr: true

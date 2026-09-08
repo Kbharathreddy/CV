@@ -2,7 +2,15 @@
 
 Professional, reproducible Computer Vision pipeline for reconstructing a realistic 3D scene from public multi-view datasets and smartphone videos. The repository focuses on data handling, frame selection, preprocessing, COLMAP orchestration, Gaussian Splatting integration, rendering, evaluation, and experiment management.
 
-Results will be added after completion of the corresponding experiment.
+## Project Status
+
+| Phase | Status | Notes |
+| --- | --- | --- |
+| Phase 1 - Project structure | Complete | Repository, configuration, logging, and dataset acquisition scaffolding. |
+| Phase 2 - Smartphone video preprocessing | Complete | Frame extraction, quality filtering, redundancy filtering, preprocessing, CSV, and summary output. |
+| Phase 3 - COLMAP/SfM reconstruction | Complete | Mip-NeRF 360 `bonsai` `images_4` registered `292/292` images with PyCOLMAP. |
+| Phase 4 - Kaggle 3DGS GPU smoke test | Complete | Official GraphDeco 3DGS ran `300` iterations on Kaggle Tesla T4 and rendered `292` training views. |
+| Phase 5 - Full reconstruction experiments and evaluation | Next | Compare 30/60/100/automatic frame selections with held-out evaluation views. |
 
 ## Motivation
 
@@ -139,6 +147,25 @@ To inspect an existing sparse model:
 python src/convert_colmap.py --model-path outputs/mipnerf_bonsai_colmap/sparse/0
 ```
 
+## Kaggle 3DGS Smoke Test
+
+Phase 4 was smoke-tested on Kaggle using only the verified Phase 3 bonsai inputs. To reproduce the private Kaggle input bundle:
+
+```bash
+python scripts/prepare_kaggle_input.py \
+  --images-dir data/public/mipnerf360/bonsai/images_4 \
+  --sparse-dir outputs/mipnerf_bonsai_colmap/sparse/0 \
+  --output-dir outputs/kaggle/bonsai_3dgs_input \
+  --archive-path outputs/kaggle/bonsai_3dgs_input.zip \
+  --overwrite
+```
+
+Upload the zip as a private Kaggle dataset, attach it to a GPU notebook, and run `notebooks/phase4_kaggle.ipynb`. The notebook clones the official GraphDeco/Inria 3D Gaussian Splatting implementation at the pinned commit recorded in `config.example.yaml`, verifies the non-commercial research/evaluation license, copies the read-only Kaggle input scene to `/kaggle/working/bonsai_scene`, builds only the required CUDA extensions, runs a short smoke test, writes a checkpoint, renders all 292 training views, displays one render, and records `summary.json`.
+
+Do not use this step for full 30,000-iteration training, evaluation metrics, smartphone reconstruction, or 30/60/100-frame experiments.
+
+Verified smoke-test result: Kaggle Tesla T4, PyTorch `2.10.0+cu128`, CUDA `12.8`, `300` iterations, loss changed from about `0.2694682` to `0.1096482`, `100,730` Gaussians, `292` renders, status `SUCCESS`. This is an integration smoke test only, not a final-quality reconstruction. See `docs/phase4_results.md`.
+
 ## Smartphone Video Capture Guidelines
 
 - Capture a static scene while moving the camera slowly.
@@ -218,6 +245,8 @@ The target comparison is:
 - automatic quality-based frame selection
 
 Results will be added after completion of the corresponding experiment.
+
+Phase 5 evaluation should use held-out evaluation views rather than reporting metrics only on training views.
 
 ## Third-Party Acknowledgements
 

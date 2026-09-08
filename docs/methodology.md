@@ -120,3 +120,52 @@ cameras + image poses + sparse points
 The runner validates the selected backend before reconstruction. Each major reconstruction stage writes logs under the experiment's `logs/` directory, records elapsed time, and stops immediately if a critical stage fails. Generated Phase 3 experiments are written under `outputs/<experiment_name>/` with `database/database.db`, `sparse/0`, `logs/`, and `summary.json`, and must not overwrite dataset-provided reference models such as `data/public/mipnerf360/bonsai/sparse/0`.
 
 The parser in `src/convert_colmap.py` reads binary or text sparse models. It extracts camera intrinsics, registered image rotations and translations, camera centers, sparse point coordinates, colors, reprojection errors, and track lengths. These values are summarized in `outputs/<experiment_name>/summary.json` so later Gaussian Splatting integration can consume verified camera and sparse point metadata rather than assuming reconstruction succeeded.
+
+## Phase 4: Gaussian Splatting GPU Smoke Test
+
+Phase 4 is complete. It used a short GPU smoke test rather than full optimization. The training backend should be portable across AWS, Kaggle, and other CUDA machines, so project code prepares a standard COLMAP scene layout and command configuration while the heavy 3DGS implementation remains an external dependency.
+
+While AWS G-family quota is pending, Kaggle can be used as an alternate validation backend. The required Kaggle input contains only:
+
+```text
+bonsai/
+        images/
+        sparse/
+                0/
+```
+
+The `images` directory comes from `data/public/mipnerf360/bonsai/images_4`. The `sparse/0` directory must come from our generated Phase 3 reconstruction at `outputs/mipnerf_bonsai_colmap/sparse/0`, not from the Mip-NeRF download's reference `sparse/0`.
+
+On Kaggle, the read-only input scene was copied to `/kaggle/working/bonsai_scene`. Both official 3DGS commands used that writable path as their scene source.
+
+The selected external implementation is the official GraphDeco/Inria repository, pinned by commit in `config.example.yaml`. Its license is suitable for non-commercial research/evaluation use; external source is cloned in the GPU environment and is not copied into this repository.
+
+The smoke-test sequence is:
+
+```text
+CUDA/GPU check
+        |
+input COLMAP scene validation
+        |
+official 3DGS clone + license/commit check
+        |
+CUDA extension build
+        |
+short training run, default 300 iterations
+        |
+checkpoint + point cloud check
+        |
+render command
+        |
+summary.json
+```
+
+Smoke-test success means CUDA is available, the COLMAP model and images load, Gaussian initialization succeeds, training starts, finite loss values are observed and change, a checkpoint is written, and at least one render is produced. The notebook records measured values only; it must not fabricate runtime, loss, GPU memory, or Gaussian counts.
+
+The verified Kaggle run used a Tesla T4 with PyTorch `2.10.0+cu128`, ran 300 iterations, changed the main training loss from about `0.2694682` to `0.1096482`, wrote `chkpnt300.pth`, saved a `100,730`-Gaussian point cloud, and rendered 292 training views. The loss parser intentionally ignores `Depth Loss=0.0000000` so the reported final loss reflects the main training loss. These results are a smoke-test validation only, not final reconstruction quality evidence.
+
+## Phase 5: Full Experiments and Evaluation
+
+Phase 5 is next. It should compare 30-frame, 60-frame, 100-frame, automatic frame-selection, and optional full 292-frame reconstructions. Evaluation should include PSNR, SSIM, LPIPS, training/runtime cost, number of Gaussians, registration or reconstruction success, and frame-selection efficiency.
+
+Evaluation metrics must be computed on held-out evaluation views. Training-view renders can be useful for sanity checks, but they are not sufficient evidence of generalization or final reconstruction quality.
