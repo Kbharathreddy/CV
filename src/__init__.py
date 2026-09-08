@@ -2,10 +2,12 @@
 
 __all__ = [
     "config",
+    "convert_colmap",
     "download_dataset",
     "extract_frames",
     "frame_quality",
     "pipeline",
     "preprocess",
+    "run_colmap",
     "utils",
 ]

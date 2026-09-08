@@ -41,8 +41,14 @@ preprocessing:
   jpeg_quality: 95
 
 colmap:
-  matcher: sequential
-  camera_model: OPENCV
+  backend: auto
+  matcher: auto
+  dataset_matcher: exhaustive
+  video_matcher: sequential
+  camera_model: PINHOLE
+  image_subdir: images_4
+  single_camera: true
+  sequential_overlap: 10
 
 gaussian:
   iterations: 30000

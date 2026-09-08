@@ -45,7 +45,16 @@ REQUIRED_KEYS: dict[str, set[str]] = {
         "max_redundant_motion",
     },
     "preprocessing": {"max_width", "max_height", "jpeg_quality"},
-    "colmap": {"matcher", "camera_model"},
+    "colmap": {
+        "backend",
+        "matcher",
+        "dataset_matcher",
+        "video_matcher",
+        "camera_model",
+        "image_subdir",
+        "single_camera",
+        "sequential_overlap",
+    },
     "gaussian": {"iterations", "lambda_ssim", "device", "checkpoint_interval"},
     "evaluation": {"psnr", "ssim", "lpips"},
     "reproducibility": {"random_seed"},
@@ -213,6 +222,17 @@ def validate_config(config: dict[str, Any]) -> dict[str, Any]:
         raise ConfigError("gaussian.iterations must be positive.")
     if int(config["gaussian"]["checkpoint_interval"]) <= 0:
         raise ConfigError("gaussian.checkpoint_interval must be positive.")
+    if str(config["colmap"]["backend"]).lower() not in {"auto", "pycolmap", "cli"}:
+        raise ConfigError("colmap.backend must be one of: auto, pycolmap, cli.")
+    valid_matchers = {"auto", "exhaustive", "sequential"}
+    if str(config["colmap"]["matcher"]).lower() not in valid_matchers:
+        raise ConfigError("colmap.matcher must be one of: auto, exhaustive, sequential.")
+    if str(config["colmap"]["dataset_matcher"]).lower() not in {"exhaustive", "sequential"}:
+        raise ConfigError("colmap.dataset_matcher must be 'exhaustive' or 'sequential'.")
+    if str(config["colmap"]["video_matcher"]).lower() not in {"exhaustive", "sequential"}:
+        raise ConfigError("colmap.video_matcher must be 'exhaustive' or 'sequential'.")
+    if int(config["colmap"]["sequential_overlap"]) <= 0:
+        raise ConfigError("colmap.sequential_overlap must be positive.")
 
     return config
 

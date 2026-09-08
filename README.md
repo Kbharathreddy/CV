@@ -89,7 +89,7 @@ python -m pip install -r requirements.txt
 
 Install PyTorch according to your CUDA version using the official PyTorch selector. This repository does not pin CUDA-specific wheels in `requirements.txt`.
 
-COLMAP must be installed separately and available as `colmap`, or configured with a full executable path in `config.yaml`.
+PyCOLMAP is the preferred Phase 3 backend. The COLMAP command-line interface remains supported as a fallback when PyCOLMAP is unavailable or when `colmap.backend: cli` is selected. For CLI use, COLMAP must be installed separately and available as `colmap`, or configured with a full executable path in `config.yaml`.
 
 ## Configuration
 
@@ -114,6 +114,30 @@ python src/download_dataset.py --dataset mipnerf360 --scene bonsai
 ```
 
 The official Mip-NeRF 360 project page provides Google Storage archives. The current downloader uses only those official archive URLs and extracts the requested scene into `data/public/mipnerf360/<scene>/`.
+
+## COLMAP Reconstruction
+
+Phase 3 adds COLMAP Structure-from-Motion orchestration for public dataset validation. For the Mip-NeRF 360 `bonsai` scene, use the downsampled `images_4` directory for the first practical smoke reconstruction unless you deliberately want full-resolution feature extraction.
+
+```bash
+python src/run_colmap.py \
+  --image-dir data/public/mipnerf360/bonsai/images_4 \
+  --output-dir outputs/mipnerf_bonsai_colmap \
+  --config config.yaml \
+  --backend auto \
+  --input-type dataset \
+  --overwrite
+```
+
+`colmap.backend: auto` uses PyCOLMAP when it is importable and falls back to the COLMAP CLI otherwise. The default `auto` matcher chooses exhaustive matching for public dataset image collections and sequential matching for smartphone video frames.
+
+Outputs are written as `database/database.db`, `sparse/0`, `logs/`, and `summary.json` under the experiment directory.
+
+To inspect an existing sparse model:
+
+```bash
+python src/convert_colmap.py --model-path outputs/mipnerf_bonsai_colmap/sparse/0
+```
 
 ## Smartphone Video Capture Guidelines
 

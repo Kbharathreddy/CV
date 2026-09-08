@@ -94,3 +94,29 @@ outputs/<experiment_name>/
 ```
 
 `frame_selection.csv` records per-frame quality and redundancy information. `summary.json` records video metadata, rejection counts, retained frame count, processing time, timestamp, and the runtime configuration used for the experiment.
+
+## Phase 3: COLMAP Structure-from-Motion
+
+Phase 3 validates camera pose estimation on the public Mip-NeRF 360 `bonsai` scene before using smartphone videos. Public multi-view images are not necessarily chronological video frames, so the pipeline selects exhaustive matching for dataset mode by default and reserves sequential matching for video mode.
+
+PyCOLMAP is the preferred backend because it lets the project run COLMAP's reconstruction stages directly from Python and collect consistent metadata. The COLMAP command-line backend remains available as a fallback. With `colmap.backend: auto`, the runner uses PyCOLMAP when importable and otherwise requires a configured COLMAP CLI executable.
+
+The COLMAP workflow is:
+
+```text
+images
+        |
+feature_extractor
+        |
+exhaustive_matcher or sequential_matcher
+        |
+mapper
+        |
+sparse/0
+        |
+cameras + image poses + sparse points
+```
+
+The runner validates the selected backend before reconstruction. Each major reconstruction stage writes logs under the experiment's `logs/` directory, records elapsed time, and stops immediately if a critical stage fails. Generated Phase 3 experiments are written under `outputs/<experiment_name>/` with `database/database.db`, `sparse/0`, `logs/`, and `summary.json`, and must not overwrite dataset-provided reference models such as `data/public/mipnerf360/bonsai/sparse/0`.
+
+The parser in `src/convert_colmap.py` reads binary or text sparse models. It extracts camera intrinsics, registered image rotations and translations, camera centers, sparse point coordinates, colors, reprojection errors, and track lengths. These values are summarized in `outputs/<experiment_name>/summary.json` so later Gaussian Splatting integration can consume verified camera and sparse point metadata rather than assuming reconstruction succeeded.

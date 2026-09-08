@@ -40,3 +40,21 @@ def test_validation_rejects_multiple_video_sampling_strategies() -> None:
 
     with pytest.raises(ConfigError, match="Exactly one"):
         validate_config(invalid)
+
+
+def test_colmap_matcher_configuration_validates() -> None:
+    config = load_config("config.example.yaml")
+    invalid = copy.deepcopy(config)
+    invalid["colmap"]["matcher"] = "vocabulary_tree"
+
+    with pytest.raises(ConfigError, match="colmap.matcher"):
+        validate_config(invalid)
+
+
+def test_colmap_backend_configuration_validates() -> None:
+    config = load_config("config.example.yaml")
+    invalid = copy.deepcopy(config)
+    invalid["colmap"]["backend"] = "remote"
+
+    with pytest.raises(ConfigError, match="colmap.backend"):
+        validate_config(invalid)

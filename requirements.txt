@@ -9,3 +9,4 @@ torchvision>=0.17
 lpips>=0.1.4
 pandas>=2.0
 pytest>=7.4
+pycolmap>=4.1

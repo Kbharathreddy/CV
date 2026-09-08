@@ -23,7 +23,7 @@ jobs:
 
       - name: Import checks
         run: |
-          python -c "import src.config, src.download_dataset, src.extract_frames, src.frame_quality, src.preprocess, src.pipeline, src.utils"
+          python -c "import src.config, src.convert_colmap, src.download_dataset, src.extract_frames, src.frame_quality, src.preprocess, src.pipeline, src.run_colmap, src.utils"
 
       - name: Run tests
         run: pytest

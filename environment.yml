@@ -16,5 +16,6 @@ dependencies:
   - pip:
       - opencv-python>=4.8,<5
       - lpips>=0.1.4
+      - pycolmap>=4.1
 
 # Install PyTorch separately when you know your CUDA version. See README.md.
