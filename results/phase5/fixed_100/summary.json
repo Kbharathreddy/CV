@@ -1,0 +1,21 @@
+{
+  "experiment": "fixed_100",
+  "selection_method": "fixed_uniform",
+  "training_images": 100,
+  "test_images": 37,
+  "iterations": 30000,
+  "initial_sparse_points": 93806,
+  "final_gaussians": 949115,
+  "initial_loss": 0.250729,
+  "final_loss": 0.0149537,
+  "training_runtime_seconds": 1984.58,
+  "training_runtime_minutes": 33.08,
+  "render_runtime_seconds": 18.57,
+  "psnr_mean": 31.4110248479807,
+  "ssim_mean": 0.9441913205224115,
+  "lpips_mean": 0.06310973432217096,
+  "lpips_network": "alex",
+  "same_heldout_test_set_as_fixed_30": true,
+  "same_heldout_test_set_as_fixed_60": true,
+  "status": "completed"
+}
