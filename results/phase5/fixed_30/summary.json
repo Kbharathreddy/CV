@@ -1,0 +1,18 @@
+{
+  "experiment": "fixed_30",
+  "training_images": 30,
+  "test_images": 37,
+  "iterations": 30000,
+  "initial_loss": 0.2568216,
+  "final_loss": 0.0082636,
+  "training_runtime_seconds": 1788.75,
+  "training_runtime_minutes": 29.81,
+  "render_runtime_seconds": 18.51,
+  "psnr_mean": 24.67918384689368,
+  "ssim_mean": 0.8567528966310862,
+  "lpips_mean": 0.13044193397099907,
+  "lpips_network": "alex",
+  "initial_sparse_points": 60317,
+  "final_gaussians": 779489,
+  "status": "completed"
+}
