@@ -19,7 +19,7 @@ jobs:
       - name: Install lightweight test dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest PyYAML Pillow numpy "opencv-python>=4.8,<5"
+          python -m pip install pytest PyYAML Pillow numpy "opencv-python>=4.8,<5" "scikit-image>=0.22"
 
       - name: Import checks
         run: |
